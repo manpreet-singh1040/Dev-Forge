@@ -4,7 +4,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Router = require("./src/routes/router")
 const cookieParser=require('cookie-parser');
+const mongoose = require('mongoose');
+const dockerStart=require('./src/services/dockerStart');
 
+dockerStart();
+
+
+
+
+mongoose.connect(`mongodb://localhost:${process.env.MONGO_PORT}`).then(() => {
+    console.log('Connected to MongoDB');
+}).catch((err) => {
+  console.log(err);
+})
 
 const app = express();
 

@@ -1,4 +1,12 @@
 const express=require('express');
 const router=express.Router();
-const buildRouter=require('./buildRouter');
-router.use('/build', );
+
+const newUserRouter=require('./newUser');
+const buildRouter=require('./build');
+
+
+
+router.use('/build', buildRouter);
+router.use('/newUser',newUserRouter);
+
+module.exports=router;
