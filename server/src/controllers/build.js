@@ -4,25 +4,29 @@ const mongoose=require('mongoose');
 const {exec}=require('child_process');
 const util = require('util');
 const execPromise = util.promisify(exec);
-
+const createShellScript = require('../services/createShellScript');
 const createContainer=require('../services/createContainer');
 const buildController=async (req,res)=>{
     try{
         const rootPath=process.env.ROOT_PATH;
         console.log(rootPath);
-        const {environment,userId,gitUrl,repo}=req.body;
+        const {environment,userId,gitUrl,repo,buidCommand,runCommand}=req.body;
         const containerName=uuid.v4();
         const container=await createContainer("test",containerName,gitUrl,repo);
         console.log(`constaier created`);
         await insertContainer(container,userId);
         console.log(`container inserted in user array`);
-        await execPromise(`docker cp ${rootPath}/server/src/services/nodeShell.sh ${container.id}:/`);
+        await createShellScript(`${container.id}.sh`,buidCommand,runCommand);
+        console.log(`shell script created`);
+        await execPromise(`docker cp ${rootPath}/server/ShellScripts/${container.id}.sh ${container.id}:/shellScript.sh`);
         console.log(`shell script copied`);
+        await execPromise(`rm ${rootPath}/server/ShellScripts/${container.id}.sh`);
+        console.log(`shell script deleted`);
         /*await gitClone(gitUrl,container);
         console.log(`git clone done`);
         await installDependencies(container,repo);
         console.log(`installed dependencies :) `);*/
-        await execScript(container);
+        execScript(container);
         //console.log(`script executed`);
         //await execPromise(`docker exec -d ${container.id} /bin/sh -c /nodeShell.sh`);
         //console.log(`script executed`);
@@ -102,7 +106,7 @@ const installDependencies=async (container,repo)=>{
 const execScript=async (container)=>{
     return new Promise(async(resolve,reject)=>{
         try{
-            const runningCommand=`chmod +x /nodeShell.sh`;
+            const runningCommand=`chmod +x /shellScript.sh`;
             const P1=await container.exec({Cmd:['/bin/sh',runningCommand],AttachStdout:true,AttachStderr:true});
             const P1stream=await P1.start({detach:false,stream:true});
             P1stream.on('data',(data)=>{});
@@ -111,7 +115,7 @@ const execScript=async (container)=>{
             })
             P1stream.on('end',async()=>{
                 console.log("Script converted to executuable form");
-                const P2=await container.exec({Cmd:['/bin/sh','-c','./nodeShell.sh > /proc/1/fd/1 2>/proc/1/fd/2'],AttachStdout:true,AttachStderr:true});
+                const P2=await container.exec({Cmd:['/bin/sh','-c','./shellScript.sh > /proc/1/fd/1 2>/proc/1/fd/2'],AttachStdout:true,AttachStderr:true});
                 const P2stream=await P2.start({detach:false,stream:true});
                 P2stream.on('data',(data)=>{
                 });
