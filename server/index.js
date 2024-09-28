@@ -7,9 +7,16 @@ const cookieParser=require('cookie-parser');
 const mongoose = require('mongoose');
 const dockerStart=require('./src/services/dockerStart');
 
-dockerStart();
-
-
+const createNetwork=require('./src/services/createNetwork');
+const createNginxCon=require('./src/services/createNginxCon');
+//dockerStart();
+const fun=async()=>{
+    await dockerStart();
+    //await createNetwork();
+    //Nginx=await createNginxCon();
+    console.log(`Nginx container created`);
+}
+fun();
 
 
 mongoose.connect(`mongodb://localhost:${process.env.MONGO_PORT}`).then(() => {
@@ -23,7 +30,7 @@ const app = express();
 const cors=require('cors')
 
 // Define your allowed origins
-const allowedOrigins = ['', 'http://localhost:3000'];
+const allowedOrigins = ['http://127.0.0.1:3001', 'http://localhost:3000'];
 
 // Configure the CORS middleware
 app.use(cors({

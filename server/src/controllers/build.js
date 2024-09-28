@@ -6,17 +6,25 @@ const util = require('util');
 const execPromise = util.promisify(exec);
 const createShellScript = require('../services/createShellScript');
 const createContainer=require('../services/createContainer');
+const confNginx=require('../services/confNginx');
+
+
 const buildController=async (req,res)=>{
     try{
         const rootPath=process.env.ROOT_PATH;
         console.log(rootPath);
-        const {environment,userId,gitUrl,repo,buidCommand,runCommand}=req.body;
+        const {environment,userId,gitUrl,repo,buidCommand,runCommand,subDomain,type,directory}=req.body;
+        console.log(req.body);
         const containerName=uuid.v4();
         const container=await createContainer("test",containerName,gitUrl,repo);
         console.log(`constaier created`);
-        await insertContainer(container,userId);
+        await insertContainer(container,userId,environment,type,containerName);
         console.log(`container inserted in user array`);
-        await createShellScript(`${container.id}.sh`,buidCommand,runCommand);
+        await confNginx(containerName,subDomain);
+        console.log(`nginx configured`);
+
+
+        await createShellScript(`${container.id}.sh`,buidCommand,runCommand,directory);
         console.log(`shell script created`);
         await execPromise(`docker cp ${rootPath}/server/ShellScripts/${container.id}.sh ${container.id}:/shellScript.sh`);
         console.log(`shell script copied`);
@@ -38,18 +46,30 @@ const buildController=async (req,res)=>{
 module.exports=buildController;
 
 
-const insertContainer=async (container,userId)=>{
+const insertContainer=async (container,userId,environment,type,containerName)=>{
     return new Promise(async(resolve,reject)=>{
 
         try{
+            const UserContainer=require('../models/usercontainer');
             const Container=require('../models/container');
-            const User= await Container.findOne({userId:userId});
+            const User= await UserContainer.findOne({userId:userId});
+            const newContainer=new Container({
+                containerId:container.id,
+                containerName:containerName,
+                containerType:type,
+                containerImage:environment,
+                userId:userId,
+            });
+            //console.log(`${container.id} ${containerName} ${type} ${environment} ${userId}`);
+            await newContainer.save();
             if(User){
                 User.containerIds.push(container.id);
                 await User.save();
+                console.log(`container inserted in user array in function`);
                 resolve(true);
             }
             else{
+                console.log(`User not found`);
                 reject(false);
             }
         }catch(err){
@@ -59,7 +79,7 @@ const insertContainer=async (container,userId)=>{
     })
 }
 
-const gitClone=async (url,container)=>{
+/*const gitClone=async (url,container)=>{
     return new Promise(async(resolve,reject)=>{
         try{
             const gitCommand=`git clone ${url}`;
@@ -80,9 +100,9 @@ const gitClone=async (url,container)=>{
             reject(err);
         }
     });
-}
+}*/
 
-const installDependencies=async (container,repo)=>{
+/*const installDependencies=async (container,repo)=>{
     return new Promise(async(resolve,reject)=>{
         try{
             const installCommand=`cd ${repo} && npm install`;
@@ -100,7 +120,7 @@ const installDependencies=async (container,repo)=>{
             reject(err);
         }
     });
-}
+}*/
 
 
 const execScript=async (container)=>{

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <input type="email" id="email" placeholder="Enter your message">
+    <input type="password" id="password">
+    <button id="login">Login</button>
+    <button id="checklogin">Check login</button>
+    <script>
+        let email = document.getElementById('email');
+        let password = document.getElementById('password');
+        let button = document.getElementById('login');
+        let checkButton = document.getElementById('checklogin');
+        button.addEventListener('click', () => {
+            fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: email.value,
+                    password: password.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        });
+        checkButton.addEventListener('click', () => {
+            fetch('http://localhost:3000/checklogin', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        });
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

@@ -1,36 +1,33 @@
+
 const Docker=require('dockerode');
-const createContainer=(image,containerName,gitUrl,repo)=>{
+const createNginxCon=()=>{
     return new Promise(async(resolve,reject)=>{
         try{
             const docker=new Docker();
             const container=await docker.createContainer({
-                Image:image,
-                name:containerName,
+                Image:'povtemp/nginx-devforge',
+                name:'nginx',
                 Tty:true,
-                Env:[`REPO_URL=${gitUrl}`,`REPO_NAME=${repo}`],
                 HostConfig:{
                     NetworkMode: `devf`,
-                    CpuPeriod: 100000, // 100ms
-                    CpuQuota:25000, // 25% of cpu
-                    /*PortBindings:{
-                        "8080/tcp":[
+                    PortBindings:{
+                        "80/tcp":[
                             {
-                                "HostPort":"3000"
+                                "HostPort":"8080"
                             }
                         ]
-                    }*/
+                    }
                 },
-                ExposedPorts:{
-                    "8080/tcp":{}
+                exposedPorts:{
+                    "80/tcp":{}
                 }
             });
             await container.start();
             resolve(container);
         }catch(err){
+            console.log(err);
             reject(err);
         }
     });
-    
 }
-
-module.exports=createContainer;
+module.exports=createNginxCon;

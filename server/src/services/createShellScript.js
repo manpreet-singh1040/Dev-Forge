@@ -1,8 +1,8 @@
 
-const createShellScript = async (scriptName, buildCommand,runCommand) => {
+const createShellScript = async (scriptName, buildCommand,runCommand,directory) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const scriptContent = `#!/bin/bash \n git clone $REPO_URL \n cd $REPO_NAME \n ${buildCommand} \n ${runCommand}`;
+            const scriptContent = `#!/bin/bash \n git clone $REPO_URL \n cd $REPO_NAME/${directory} \n ${buildCommand} \n ${runCommand}`;
             const fs = require('fs');
             fs.writeFile(`${process.env.ROOT_PATH}/server/ShellScripts/${scriptName}`, scriptContent, (err) => {
                 if (err) {
