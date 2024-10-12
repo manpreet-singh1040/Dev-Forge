@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
         }
         const payload = jwt.sign({ userId:user.userId,email }, process.env.JWT_SECRET);
         res.cookie('sessionToken',payload,{
-            httpOnly:true,
+           // httpOnly:true,
             secure:true,
             sameSite:'none',
             maxAge: 1000*60*60*24*7,

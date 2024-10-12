@@ -1,6 +1,10 @@
 const loginAuth = async (req, res, next) => {
     try {
         console.log(`loginAuth`);
+        console.log(req.params);
+        if(req.params){
+            req.body.params=req.params;
+        }
         const jwt=require('jsonwebtoken');
         const sessionToken = req.cookies.sessionToken;
         if(!sessionToken){

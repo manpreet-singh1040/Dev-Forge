@@ -18,7 +18,7 @@ const buildController=async (req,res)=>{
         const containerName=uuid.v4();
         const container=await createContainer("test",containerName,gitUrl,repo);
         console.log(`constaier created`);
-        await insertContainer(container,userId,environment,type,containerName);
+        await insertContainer(container,userId,environment,type,containerName,gitUrl,repo,buidCommand,runCommand,subDomain);
         console.log(`container inserted in user array`);
         await confNginx(containerName,subDomain);
         console.log(`nginx configured`);
@@ -46,7 +46,7 @@ const buildController=async (req,res)=>{
 module.exports=buildController;
 
 
-const insertContainer=async (container,userId,environment,type,containerName)=>{
+const insertContainer=async (container,userId,environment,type,containerName,gitUrl,repo,buidCommand,runCommand,subDomain)=>{
     return new Promise(async(resolve,reject)=>{
 
         try{
@@ -59,6 +59,12 @@ const insertContainer=async (container,userId,environment,type,containerName)=>{
                 containerType:type,
                 containerImage:environment,
                 userId:userId,
+                gitUrl:gitUrl,
+                repo:repo,
+                buildCommand:buidCommand,
+                runCommand:runCommand,
+                subDomain:subDomain,
+                directory:repo
             });
             //console.log(`${container.id} ${containerName} ${type} ${environment} ${userId}`);
             await newContainer.save();

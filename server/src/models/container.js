@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const githubAuth = require('../middlewares/githubAuth');
 
 const containerSchema=new mongoose.Schema({
     containerId:{
@@ -19,6 +20,30 @@ const containerSchema=new mongoose.Schema({
         required: true
     },
     userId:{
+        type: String,
+        required: true
+    },
+    buildCommand:{
+        type: String,
+        required: true
+    },
+    runCommand:{
+        type: String,
+        required: true
+    },
+    repo:{
+        type: String,
+        required: true
+    },
+    subDomain:{
+        type: String,
+        required: true
+    },
+    directory:{
+        type: String,
+        required: true
+    },
+    gitUrl:{
         type: String,
         required: true
     }
