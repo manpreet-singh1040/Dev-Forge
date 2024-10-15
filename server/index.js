@@ -9,6 +9,7 @@ const dockerStart=require('./src/services/dockerStart');
 const jwt=require('jsonwebtoken');
 const createNetwork=require('./src/services/createNetwork');
 const createNginxCon=require('./src/services/createNginxCon');
+const User=require('./src/models/user');
 //dockerStart();
 const fun=async()=>{
     await dockerStart();
@@ -93,7 +94,17 @@ app.get('/auth/github/callback',async (req,res)=>{
     console.log(tokenResponse);
     console.log(accessToken);
     req.session.accessToken = accessToken;
-    payload=jwt.sign({accessToken},process.env.JWT_SECRET);
+    let userResponse = await fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `token ${accessToken}`
+      }
+    });
+    userResponse = await userResponse.json();
+    console.log(userResponse);
+    const userName = userResponse.login;
+    console.log(userName);
+    const userDetails= await User.findOne({userName:userName});
+    payload=jwt.sign({userId:userDetails.userId},process.env.JWT_SECRET);
     res.cookie('sessionToken',payload,{
       //httpOnly:true,
       secure:true,

@@ -18,10 +18,6 @@ const getLogs=async(containerId)=>{
     });
 }
 
-
-
-
-
 router.get('/',async(req, res) =>{
     try{
         let serviceNo=req.body.params.id;
@@ -31,9 +27,9 @@ router.get('/',async(req, res) =>{
         let containerIds=data.containerIds;
         //console.log(containerIds);
         let containerId=containerIds[serviceNo];
-        //console.log(containerId);
+        console.log(containerId);
         let container = await Container.findOne({ containerId });
-       // let logs=await getLogs(container.containerId);
+       let logs=await getLogs(container.containerId);
             let temp = {
                 type: container.containerType,
                 environment: container.containerImage,
@@ -43,10 +39,10 @@ router.get('/',async(req, res) =>{
                 runCommand: container.runCommand,
                 subDomain: container.subDomain,
                 directory: container.directory,
-                //logs:logs
+                logs:logs
             }
             //services.push(temp);
-        res.json({ status:true,service:temp });        
+        res.json({ status:true,logs });        
     }
     catch(err){
         console.log(err);
@@ -56,4 +52,3 @@ router.get('/',async(req, res) =>{
 });
 
 module.exports = router;
-

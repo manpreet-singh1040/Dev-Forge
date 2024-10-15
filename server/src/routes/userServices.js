@@ -5,22 +5,20 @@ const Container = require('../models/container');
 router.get('/',async (req, res) => {
     try{
         let data=await UserContainer.findOne({userId:req.body.userId});
-        data=data[0];
+        //data=data[0];
         let services=[];
         for (const containerId of data.containerIds) {
             let container = await Container.findOne({ containerId });
             let temp = {
-                containerType: container.containerType,
-                containerImage: container.containerImage,
+                type: container.containerType,
+                environment: container.containerImage,
                 gitUrl: container.gitUrl,
                 repo: container.repo,
-                buildCommand: container.buildCommand,
-                runCommand: container.runCommand,
                 subDomain: container.subDomain,
-                directory: container.directory
             };
             services.push(temp);
         }
+        console.log(services);
         res.json({ status:true,services });        
     }
     catch(err){

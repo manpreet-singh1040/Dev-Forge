@@ -9,6 +9,7 @@ const loginAuth=require('../middlewares/auth');
 const githubAuth=require('../middlewares/githubAuth');
 const userServicesRouter=require('./userServices');
 const servicesInfoRouter=require('./servicesInfo');
+const logsRouter=require('./logs'); 
 const { use } = require('passport');
 
 router.use('/build', loginAuth,buildRouter);
@@ -19,6 +20,7 @@ router.use('/signin',signinRouter);
 //router.get('/services/:id',(req,res)=>{console.log(req.params);res.json({status:true})});
 router.use('/services/:id',loginAuth,servicesInfoRouter);
 router.use('/services',loginAuth,userServicesRouter);
+router.use('/logs/:id',loginAuth,logsRouter);
 router.get('/checkLogin',loginAuth,(req,res)=>{
     res.json({status:true});
 })

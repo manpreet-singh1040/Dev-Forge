@@ -12,7 +12,7 @@ const loginAuth = async (req, res, next) => {
         }
         const decoded = jwt.verify(sessionToken, process.env.JWT_SECRET);
         req.body.userId = decoded.userId;
-        console.log(`decoded ${req.body.userId}`);
+        console.log(`decoded ${decoded.userId}`);
         next();
     }
     catch (err) {

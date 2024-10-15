@@ -13,18 +13,18 @@ const buildController=async (req,res)=>{
     try{
         const rootPath=process.env.ROOT_PATH;
         console.log(rootPath);
-        const {environment,userId,gitUrl,repo,buidCommand,runCommand,subDomain,type,directory}=req.body;
+        const {environment,userId,gitUrl,repo,buildCommand,runCommand,subDomain,type,directory}=req.body;
         console.log(req.body);
         const containerName=uuid.v4();
         const container=await createContainer("test",containerName,gitUrl,repo);
         console.log(`constaier created`);
-        await insertContainer(container,userId,environment,type,containerName,gitUrl,repo,buidCommand,runCommand,subDomain);
+        await insertContainer(container,userId,environment,type,containerName,gitUrl,repo,buildCommand,runCommand,subDomain);
         console.log(`container inserted in user array`);
         await confNginx(containerName,subDomain);
         console.log(`nginx configured`);
 
 
-        await createShellScript(`${container.id}.sh`,buidCommand,runCommand,directory);
+        await createShellScript(`${container.id}.sh`,buildCommand,runCommand,directory);
         console.log(`shell script created`);
         await execPromise(`docker cp ${rootPath}/server/ShellScripts/${container.id}.sh ${container.id}:/shellScript.sh`);
         console.log(`shell script copied`);
@@ -38,7 +38,10 @@ const buildController=async (req,res)=>{
         //console.log(`script executed`);
         //await execPromise(`docker exec -d ${container.id} /bin/sh -c /nodeShell.sh`);
         //console.log(`script executed`);
-        res.status(200).json({message:`Build done`});
+        const UserContainer=require('../models/usercontainer');
+        const usercontainer=await UserContainer.findOne({userId});
+        let id=usercontainer.containerIds.length-1;
+        res.status(200).json({message:`Build done`,id:id});
     }catch(err){
         res.status(500).json({message:err.message});
     }
@@ -46,7 +49,7 @@ const buildController=async (req,res)=>{
 module.exports=buildController;
 
 
-const insertContainer=async (container,userId,environment,type,containerName,gitUrl,repo,buidCommand,runCommand,subDomain)=>{
+const insertContainer=async (container,userId,environment,type,containerName,gitUrl,repo,buildCommand,runCommand,subDomain)=>{
     return new Promise(async(resolve,reject)=>{
 
         try{
@@ -61,7 +64,7 @@ const insertContainer=async (container,userId,environment,type,containerName,git
                 userId:userId,
                 gitUrl:gitUrl,
                 repo:repo,
-                buildCommand:buidCommand,
+                buildCommand:buildCommand,
                 runCommand:runCommand,
                 subDomain:subDomain,
                 directory:repo
