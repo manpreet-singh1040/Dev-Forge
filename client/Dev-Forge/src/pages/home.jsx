@@ -76,6 +76,7 @@ const Home = () => {
           >
             Let's go
           </button>
+          <button onClick={()=>{navigate('/services')}}>Your Services</button>
         </div>
       )}
     </div>

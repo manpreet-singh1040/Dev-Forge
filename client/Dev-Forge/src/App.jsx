@@ -21,7 +21,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/createservice" element={<ProjectSetupForm />} />
           <Route path="/services" element={<UserServices/>} />
-          <Route path="/services/:id" element={<ServiceInfo/>} />
+          {<Route path="/services/:id" element={<ServiceInfo/>} />}
         </Routes> 
 
       </div>
