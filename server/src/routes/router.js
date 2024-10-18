@@ -10,8 +10,10 @@ const githubAuth=require('../middlewares/githubAuth');
 const userServicesRouter=require('./userServices');
 const servicesInfoRouter=require('./servicesInfo');
 const logsRouter=require('./logs'); 
-const { use } = require('passport');
+// const { use } = require('passport');
+const redeployRouter=require('./redploy');
 
+router.use('/redeploy/:id',loginAuth,redeployRouter);
 router.use('/build', loginAuth,buildRouter);
 //router.use('/build',buildRouter);
 //router.use('/newUser',newUserRouter);

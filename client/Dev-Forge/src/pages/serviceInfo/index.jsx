@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react' ;
 import { useNavigate,useParams } from 'react-router-dom' ;
 import Info from './info';
 import Logs from './log';
+import Redeploy from './redploy';
 const ServiceInfo=()=>{
     useEffect(() => {
         fetch('http://localhost:3000/checkLogin', {
@@ -36,7 +37,7 @@ const ServiceInfo=()=>{
         };
         fetchServices();
     }, []);
-    const Components=[<Info service={service}/>,<Logs id={id}/>,<div>Settings</div>,<div>redeploy</div>];
+    const Components=[<Info service={service}/>,<Logs id={id}/>,<div>Settings</div>,<Redeploy id={id} setComp={setComp} />];
     return (
     <>
         <nav className="flex justify-between items-center mb-6 p-4 bg-gray-800 shadow-lg sticky top-0 left-0 right-0 z-10">
