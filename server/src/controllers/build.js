@@ -20,7 +20,7 @@ const buildController=async (req,res)=>{
         console.log(`constaier created`);
         await insertContainer(container,userId,environment,type,containerName,gitUrl,repo,buildCommand,runCommand,subDomain);
         console.log(`container inserted in user array`);
-        await confNginx(containerName,subDomain);
+        await confNginx(containerName,subDomain,type,container);
         console.log(`nginx configured`);
 
 

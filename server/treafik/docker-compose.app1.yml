@@ -1,0 +1,16 @@
+services:
+  app1:
+   image: test
+#  command : bash
+  #  ports:
+  #   - "8000:8080"
+   networks:
+    - devf
+   labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.app1.rule=Host(`app1.localhost`)"              
+    - "traefik.http.routers.app1.entrypoints=web"                          
+    - "traefik.http.services.app1.loadbalancer.server.port=8080"             
+networks:
+  devf:
+   external: true

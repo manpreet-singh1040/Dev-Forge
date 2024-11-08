@@ -7,3 +7,5 @@ RUN apt-get update && apt-get install -y git && \
 RUN apt-get update && apt-get install -y npm
 COPY ./killAllProcess.sh /killAllProcess.sh
 RUN chmod +x /killAllProcess.sh
+
+ENTRYPOINT ["/bin/bash", "-c", "while true; do sleep 1000; done"]
