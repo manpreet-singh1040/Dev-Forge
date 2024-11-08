@@ -18,7 +18,7 @@ const ServiceInfo=()=>{
         })});
     const navigate=useNavigate();
     const {id}=useParams();
-    const [service, setService] = useState({});
+    const [service, setService] = useState([]);
     const [comp,setComp]=useState(0);
     useEffect(() => {
         // Fetch services from an API or database
@@ -31,9 +31,17 @@ const ServiceInfo=()=>{
                 },
                 credentials: 'include',
             });
+            console.log(response);
+            if(response.status===401)
+            {
+              navigate("/login");
+            }
             const data = await response.json();
             console.log(data);
-            setService(data.service);
+            if(data.service)
+            {
+              setService(data.service);
+            }
         };
         fetchServices();
     }, []);

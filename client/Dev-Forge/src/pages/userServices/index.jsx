@@ -16,8 +16,13 @@ const UserServices = () => {
                 credentials: 'include',
             });
             const data = await response.json();
+            if(response.status===401){ navigate("/login");}
             console.log(data);
-            setServices(data.services);
+            if(data)
+            {
+
+              setServices(data.services);
+            }
         };
 
         fetchServices();
