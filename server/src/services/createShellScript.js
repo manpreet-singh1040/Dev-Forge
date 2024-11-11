@@ -11,6 +11,7 @@ const createShellScript = async (scriptName, buildCommand,runCommand,directory) 
                 resolve(true);
             });
         } catch (err) {
+            console.log(err);
             reject(err);
         }
     }

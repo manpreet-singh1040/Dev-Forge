@@ -1,16 +1,20 @@
 services:
   app1:
-   image: test
-#  command : bash
-  #  ports:
-  #   - "8000:8080"
-   networks:
-    - devf
-   labels:
-    - "traefik.enable=true"
-    - "traefik.http.routers.app1.rule=Host(`app1.localhost`)"              
-    - "traefik.http.routers.app1.entrypoints=web"                          
-    - "traefik.http.services.app1.loadbalancer.server.port=8080"             
+     image: test
+     networks:
+       - devf
+     labels:
+       - "traefik.enable=true"
+       - "traefik.http.routers.app1.rule=Host(`app1.localhost`)"              
+       - "traefik.http.routers.app1.entrypoints=web"                          
+       - "traefik.http.services.app1.loadbalancer.server.port=8080"  
+     deploy:
+       resources:
+        limits:
+          cpus: '0.25'  # Equivalent to 25% CPU
+     tty: true
+     expose:
+       - "8080"  # Expose port 8080 inside the container           
 networks:
   devf:
    external: true

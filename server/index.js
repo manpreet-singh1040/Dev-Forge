@@ -10,12 +10,14 @@ const jwt=require('jsonwebtoken');
 const createNetwork=require('./src/services/createNetwork');
 const createNginxCon=require('./src/services/createNginxCon');
 const User=require('./src/models/user');
+const startTreafikCon=require('./src/services/startTreafikCon');
 //dockerStart();
 const fun=async()=>{
     await dockerStart();
-    await createNetwork();
-    Nginx=await createNginxCon();
-    console.log(`Nginx container created`);
+    // await createNetwork();
+    // Nginx=await createNginxCon();
+    await startTreafikCon();
+    console.log(`treafik container created !!`);
 }
 fun();
 

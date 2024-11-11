@@ -14,14 +14,16 @@ const buildController=async (req,res)=>{
         const rootPath=process.env.ROOT_PATH;
         console.log(rootPath);
         const {environment,userId,gitUrl,repo,buildCommand,runCommand,subDomain,type,directory}=req.body;
-        console.log(req.body);
+        // console.log(req.body);
         const containerName=uuid.v4();
-        const container=await createContainer("test",containerName,gitUrl,repo);
+        const container=await createContainer("test",containerName,gitUrl,repo,subDomain);
         console.log(`constaier created`);
         await insertContainer(container,userId,environment,type,containerName,gitUrl,repo,buildCommand,runCommand,subDomain);
         console.log(`container inserted in user array`);
-        await confNginx(containerName,subDomain,type,container);
-        console.log(`nginx configured`);
+
+
+        // await confNginx(containerName,subDomain,type,container);
+        // console.log(`nginx configured`);
 
 
         await createShellScript(`${container.id}.sh`,buildCommand,runCommand,directory);
@@ -43,6 +45,7 @@ const buildController=async (req,res)=>{
         let id=usercontainer.containerIds.length-1;
         res.status(200).json({message:`Build done`,id:id});
     }catch(err){
+        console.log(err);
         res.status(500).json({message:err.message});
     }
 }
