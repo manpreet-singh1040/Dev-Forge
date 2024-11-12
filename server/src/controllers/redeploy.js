@@ -21,8 +21,10 @@ const redeployController = async (req, res) => {
         /// await container.kill();
         await execPromise(`docker exec ${containerId} /bin/sh -c "./killAllProcess.sh"`);
         console.log("killed all process");
-        await execPromise(`docker exec ${containerId} /bin/sh -c "rm -r ${containerInfo.repo}"`);
-        console.log("removed all the repo files!!");
+
+        
+        // await execPromise(`docker exec ${containerId} /bin/sh -c "rm -r ${containerInfo.repo}"`);
+        // console.log("removed all the repo files!!");
         // await execPromise(`docker exec ${containerId} /bin/sh -c "chmod +x shellScript.sh"`);
         execScript(container);
         console.log("redeployed the container");

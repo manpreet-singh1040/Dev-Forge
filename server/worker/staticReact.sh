@@ -1,0 +1,4 @@
+#!/bin/bash
+
+redis-cli -h $REDIS_HOST -p $REDIS_PORT
+RPUSH $REDIS_QUEUE $CONTAINER_NAME

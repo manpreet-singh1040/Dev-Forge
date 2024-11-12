@@ -11,12 +11,17 @@ const createNetwork=require('./src/services/createNetwork');
 const createNginxCon=require('./src/services/createNginxCon');
 const User=require('./src/models/user');
 const startTreafikCon=require('./src/services/startTreafikCon');
+
+const {exec}=require('child_process');
+const util = require('util');
+const execPromise = util.promisify(exec);
 //dockerStart();
 const fun=async()=>{
     await dockerStart();
     // await createNetwork();
     // Nginx=await createNginxCon();
     await startTreafikCon();
+    await execPromise(`cd ${process.env.ROOT_PATH}/server/treafik && docker compose -f docker-compose.nginx.yml up -d`);
     console.log(`treafik container created !!`);
 }
 fun();
@@ -29,8 +34,19 @@ mongoose.connect(`mongodb://localhost:${process.env.MONGO_PORT}`).then(() => {
 })
 
 const app = express();
-
 const cors=require('cors')
+const redis=require('redis');
+const redisClient=redis.createClient({ url:`redis://localhost:${process.env.REDIS_PORT}`});
+
+redisClient.connect();
+
+redisClient.on('connect',()=>{
+  console.log(`redis id connected :) `);
+})
+
+redisClient.on('error',(err)=>{
+  console.log(`redis eror ${err}`);
+})
 
 // Define your allowed origins
 const allowedOrigins = ['http://127.0.0.1:3001', 'http://localhost:5173'];

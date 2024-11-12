@@ -1,11 +1,17 @@
-FROM ubuntu:latest
+FROM nginx
 
-RUN apt-get update && apt-get install -y git
-RUN apt-get update && apt-get install -y git && \
-    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y nodejs
-RUN apt-get update && apt-get install -y npm
-COPY ./killAllProcess.sh /killAllProcess.sh
-RUN chmod +x /killAllProcess.sh
+# Copy your custom nginx configuration
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
-ENTRYPOINT ["/bin/bash", "-c", "while true; do sleep 1000; done"]
+# Create the sites directory
+RUN mkdir -p /etc/nginx/sites
+
+# Optional: Copy site configuration files to the sites directory if needed
+# COPY ./sites/* /etc/nginx/sites/
+
+# Set the working directory (not strictly necessary)
+WORKDIR /etc/nginx
+
+#RUN nginx -s reload
+
+

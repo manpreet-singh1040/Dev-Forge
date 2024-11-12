@@ -1,0 +1,17 @@
+services:
+  static:
+   image : test
+   networks:
+    - devf
+   environment:
+    - REDIS_HOST=redis
+    - REDIS_PORT=6379
+    - REDIS_QUEUE=queue
+    - CONTAINER_NAME=treafik-static-1
+   tty: true
+   volumes:
+      - "../nginxData/staticContent:/app"
+
+networks:
+  devf:
+    external: true

@@ -1,17 +1,20 @@
 services:
   nginx:
-    image: nginx
+    image: devforge-nginx
     networks:
       - devf
     tty: true
     labels:
        - "traefik.enable=true"
-       - "traefik.http.routers.catchall.rule=HostRegexp(`{catchall:.*}`)"  # Catch-all rule for unmatched hosts
+       - "traefik.http.routers.catchall.rule=HostRegexp(`{catchall:.*}`)" 
        - "traefik.http.routers.catchall.entrypoints=web"
-       - "traefik.http.routers.catchall.priority=1"  # Set a low priority for catch-all
+       - "traefik.http.routers.catchall.priority=1" 
        - "traefik.http.services.catchall.loadbalancer.server.port=80"
     expose:
       - "80"
+    volumes:
+      - "../nginxData/sites-available:/etc/nginx/sites"
+      - "../nginxData/staticContent:/etc/nginx/staticContent"
 networks:
    devf:
      external: true

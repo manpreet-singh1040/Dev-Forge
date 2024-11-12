@@ -7,43 +7,71 @@ const execPromise = util.promisify(exec);
 const createShellScript = require('../services/createShellScript');
 const createContainer=require('../services/createContainer');
 const confNginx=require('../services/confNginx');
+const createStaticCon=require('../services/createStaticCon');
+const confStaticNginx=require('../services/confStaticNginx');
 
-
+const docker = new Docker();
 const buildController=async (req,res)=>{
     try{
         const rootPath=process.env.ROOT_PATH;
         console.log(rootPath);
         const {environment,userId,gitUrl,repo,buildCommand,runCommand,subDomain,type,directory}=req.body;
-        // console.log(req.body);
-        const containerName=uuid.v4();
-        const container=await createContainer("test",containerName,gitUrl,repo,subDomain);
-        console.log(`constaier created`);
-        await insertContainer(container,userId,environment,type,containerName,gitUrl,repo,buildCommand,runCommand,subDomain);
-        console.log(`container inserted in user array`);
+        // console.log(type);
+        if(type==="webservices")
+        {
+            // console.log(req.body);
+            const containerName=uuid.v4();
+            const container=await createContainer("povtemp/devforge-node-service",containerName,gitUrl,repo,subDomain);
+            console.log(`constaier created`);
+            await insertContainer(container,userId,environment,type,containerName,gitUrl,repo,buildCommand,runCommand,subDomain);
+            console.log(`container inserted in user array`);
+    
+    
+            // await confNginx(containerName,subDomain,type,container);
+            // console.log(`nginx configured`);
+    
+    
+            await createShellScript(`${container.id}.sh`,buildCommand,runCommand,directory);
+            console.log(`shell script created`);
+            await execPromise(`docker cp ${rootPath}/server/ShellScripts/${container.id}.sh ${container.id}:/shellScript.sh`);
+            console.log(`shell script copied`);
+            await execPromise(`rm ${rootPath}/server/ShellScripts/${container.id}.sh`);
+            console.log(`shell script deleted`);
+            /*await gitClone(gitUrl,container);
+            console.log(`git clone done`);
+            await installDependencies(container,repo);
+            console.log(`installed dependencies :) `);*/
+            execScript(container);
+            //console.log(`script executed`);
+            //await execPromise(`docker exec -d ${container.id} /bin/sh -c /nodeShell.sh`);
+            //console.log(`script executed`);
+            const UserContainer=require('../models/usercontainer');
+            const usercontainer=await UserContainer.findOne({userId});
+            let id=usercontainer.containerIds.length-1;
+            res.status(200).json({message:`Build done`,id:id});
 
-
-        // await confNginx(containerName,subDomain,type,container);
-        // console.log(`nginx configured`);
-
-
-        await createShellScript(`${container.id}.sh`,buildCommand,runCommand,directory);
-        console.log(`shell script created`);
-        await execPromise(`docker cp ${rootPath}/server/ShellScripts/${container.id}.sh ${container.id}:/shellScript.sh`);
-        console.log(`shell script copied`);
-        await execPromise(`rm ${rootPath}/server/ShellScripts/${container.id}.sh`);
-        console.log(`shell script deleted`);
-        /*await gitClone(gitUrl,container);
-        console.log(`git clone done`);
-        await installDependencies(container,repo);
-        console.log(`installed dependencies :) `);*/
-        execScript(container);
-        //console.log(`script executed`);
-        //await execPromise(`docker exec -d ${container.id} /bin/sh -c /nodeShell.sh`);
-        //console.log(`script executed`);
-        const UserContainer=require('../models/usercontainer');
-        const usercontainer=await UserContainer.findOne({userId});
-        let id=usercontainer.containerIds.length-1;
-        res.status(200).json({message:`Build done`,id:id});
+        }
+        else if(type==="static-website")
+        {
+            let deploymentId=uuid.v4();
+            console.log("hey baby!!");
+            console.log(deploymentId);
+            const nginxContainer = docker.getContainer('treafik-nginx-1');
+            // await execPromise(`cd ${process.env.ROOT_PATH}/server/nginxData/sites-available && mkdir ${deploymentId}`);
+            await execPromise(`cd ${process.env.ROOT_PATH}/server/nginxData/staticContent && mkdir ${deploymentId}`);
+            console.log(`directories static site created`);
+            let image=`staticnode`;
+            let staticContainer=await createStaticCon(image,gitUrl,repo,deploymentId);
+            // let staticContainer=await createStaticCon();
+            console.log(`static container created`);
+            await execPromise(`docker exec -d ${staticContainer.id} /bin/sh -c "./staticDeployment.sh > /proc/1/fd/1 2>/proc/1/fd/2 "`);
+            console.log(`static container started`);
+            await confStaticNginx(deploymentId,subDomain);
+            console.log(`nginx configured`);
+            await execPromise(`docker exec ${nginxContainer.id} /bin/sh -c "nginx -s reload"`);
+            console.log(`nginx reloaded`);
+            res.status(200).json({message:"Static Site is Deploying"});
+        }
     }catch(err){
         console.log(err);
         res.status(500).json({message:err.message});
