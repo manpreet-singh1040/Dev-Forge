@@ -60,7 +60,7 @@ networks:
             fs.writeFileSync(`${process.env.ROOT_PATH}/server/treafik/docker-compose.${containerName}.yml`,fileContent);
             await execPromise(`cd ${process.env.ROOT_PATH}/server/treafik && docker compose -f docker-compose.${containerName}.yml up -d`);
             let container=docker.getContainer(`treafik-${containerName}-1`);
-            await execPromise(`cd cd ${process.env.ROOT_PATH}/server/treafik && rm docker-compose.${containerName}.yml`);
+            await execPromise(`cd ${process.env.ROOT_PATH}/server/treafik && rm docker-compose.${containerName}.yml`);
             resolve(container);
         }catch(err){
             reject(err);

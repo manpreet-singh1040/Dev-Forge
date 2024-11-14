@@ -1,17 +1,12 @@
 services:
   nginx:
     image: devforge-nginx
+    # image: nginx
     networks:
       - devf
     tty: true
-    labels:
-       - "traefik.enable=true"
-       - "traefik.http.routers.catchall.rule=HostRegexp(`{catchall:.*}`)" 
-       - "traefik.http.routers.catchall.entrypoints=web"
-       - "traefik.http.routers.catchall.priority=1" 
-       - "traefik.http.services.catchall.loadbalancer.server.port=80"
-    expose:
-      - "80"
+    ports:
+      - "80:80"
     volumes:
       - "../nginxData/sites-available:/etc/nginx/sites"
       - "../nginxData/staticContent:/etc/nginx/staticContent"

@@ -1,0 +1,21 @@
+services:
+  nginx:
+    image: devforge-nginx
+    # image: nginx
+    networks:
+      - devf
+    tty: true
+    labels:
+       - "traefik.enable=true"
+       - "traefik.http.routers.nginx.rule=Host(`*.localhost`)" 
+       - "traefik.http.routers.nginx.entrypoints=web"
+       - "traefik.http.routers.nginx.priority=1" 
+       - "traefik.http.services.nginx.loadbalancer.server.port=80"
+    expose:
+      - "80"
+    volumes:
+      - "../nginxData/sites-available:/etc/nginx/sites"
+      - "../nginxData/staticContent:/etc/nginx/staticContent"
+networks:
+   devf:
+     external: true

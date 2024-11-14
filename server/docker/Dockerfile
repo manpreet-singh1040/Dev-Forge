@@ -10,6 +10,7 @@ RUN mkdir -p /etc/nginx/sites
 # COPY ./sites/* /etc/nginx/sites/
 
 # Set the working directory (not strictly necessary)
+EXPOSE 80
 WORKDIR /etc/nginx
 
 #RUN nginx -s reload
