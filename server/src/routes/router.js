@@ -10,6 +10,7 @@ const githubAuth=require('../middlewares/githubAuth');
 const userServicesRouter=require('./userServices');
 const servicesInfoRouter=require('./servicesInfo');
 const logsRouter=require('./logs'); 
+const deleteService=require('./deleteService');
 // const { use } = require('passport');
 const redeployRouter=require('./redploy');
 
@@ -23,6 +24,7 @@ router.use('/signin',signinRouter);
 router.use('/services/:id',loginAuth,servicesInfoRouter);
 router.use('/services',loginAuth,userServicesRouter);
 router.use('/logs/:id',loginAuth,logsRouter);
+router.use('/deleteService/:id',loginAuth,deleteService);
 router.get('/checkLogin',loginAuth,(req,res)=>{
     res.json({status:true});
 })

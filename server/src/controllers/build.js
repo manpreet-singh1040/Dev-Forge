@@ -51,7 +51,7 @@ const buildController=async (req,res)=>{
             res.status(200).json({message:`Build done`,id:id});
 
         }
-        else if(type==="static-website")
+        else if(type==="website")
         {
             let deploymentId=uuid.v4();
             console.log("hey baby!!");
@@ -62,8 +62,14 @@ const buildController=async (req,res)=>{
             console.log(`directories static site created`);
             let image=`staticnode`;
             let staticContainer=await createStaticCon(image,gitUrl,repo,deploymentId);
-            // let staticContainer=await createStaticCon();
             console.log(`static container created`);
+            // let staticContainer=await createStaticCon();
+
+
+            await insertContainer(staticContainer,userId,environment,type,deploymentId,gitUrl,repo,buildCommand,runCommand,subDomain);
+            console.log(`container inserted in user array`);
+
+
             await execPromise(`docker exec -d ${staticContainer.id} /bin/sh -c "./staticDeployment.sh > /proc/1/fd/1 2>/proc/1/fd/2 "`);
             console.log(`static container started`);
             await confStaticNginx(deploymentId,subDomain);

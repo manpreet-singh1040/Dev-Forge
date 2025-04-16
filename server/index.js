@@ -11,10 +11,15 @@ const createNetwork=require('./src/services/createNetwork');
 const createNginxCon=require('./src/services/createNginxCon');
 const User=require('./src/models/user');
 const startTreafikCon=require('./src/services/startTreafikCon');
-
+const axios=require('axios');
 const {exec}=require('child_process');
 const util = require('util');
 const execPromise = util.promisify(exec);
+
+const bcrypt = require('bcryptjs');
+const uuid = require('uuid');
+const UserContainer = require('./src/models/usercontainer');
+
 //dockerStart();
 const fun=async()=>{
     await dockerStart();
@@ -88,7 +93,7 @@ app.use(session({
 app.get('/auth/github',(req,res)=>{
   console.log('Github Auth');
   const redirect_uri = 'http://localhost:3000/auth/github/callback';
-  const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=repo`;
+  const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=repo,user,user:email`;
   res.redirect(githubAuthUrl);
 })
 
@@ -122,9 +127,20 @@ app.get('/auth/github/callback',async (req,res)=>{
     const userName = userResponse.login;
     console.log(userName);
     const userDetails= await User.findOne({userName:userName});
-    payload=jwt.sign({userId:userDetails.userId},process.env.JWT_SECRET);
+    if(userDetails===null){
+      let password=uuid.v4();
+        const userInfo=await getUserInfo(accessToken);
+      const hashedPassword = bcrypt.hashSync(password, 10);
+        const userId = uuid.v4();
+        const user = new User({ email:userInfo.email, password: hashedPassword,userName:userInfo.githubHandle,userId});
+        await user.save();
+        const newUserContainer = new UserContainer({userId,containerIds:[]});
+        await newUserContainer.save();
+        console.log(`user created `);
+    }
+    const newUserDetails=await User.findOne({userName:userName});
+    payload=jwt.sign({userId:newUserDetails.userId},process.env.JWT_SECRET);
     res.cookie('sessionToken',payload,{
-      //httpOnly:true,
       secure:true,
       sameSite:'none',
       maxAge: 1000*60*60*24*7,
@@ -133,6 +149,7 @@ app.get('/auth/github/callback',async (req,res)=>{
     res.redirect('http://localhost:5173');
   }
   catch(err){
+    res.redirect('http://localhost:5173');
     console.log(err);
   }
 })
@@ -156,3 +173,44 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
 console.log(`Server listening at port:${port}`)
 });
+
+
+
+async function getUserInfo(accessToken) {
+  try {
+    console.log("CODE :"+accessToken);
+    // Fetch user information from GitHub
+    const userResponse = await axios.get('https://api.github.com/user', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    const emailResponse = await axios.get('https://api.github.com/user/emails', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    // The response contains an array of email addresses
+    const emails = emailResponse.data;
+    // Find the primary email (or handle according to your needs)
+    const primaryEmail = emails.find(email => email.primary).email;
+
+    // Extract GitHub handle from user information
+    const githubHandle = userResponse.data.login;
+    console.log(primaryEmail+" "+githubHandle);
+    return {
+      email: primaryEmail,
+      githubHandle: githubHandle,
+    };
+  } catch (error) {
+    console.error('Error fetching user information from GitHub:', error);
+    return {
+      email: null,
+      githubHandle: null,
+    };
+  }
+}
