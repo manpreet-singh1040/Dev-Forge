@@ -52,13 +52,14 @@ Dev-Forge is a full-stack deployment platform that allows users to easily deploy
 ## 🧪 Environment Variables
 
 The .env file for backend should look like
-
- | PORT                   |
- | MONGO_PORT             |
- | ROOT_PATH              |
- | JWT_SECRET             |
- | REDIS_PORT             |
- | GITHUB_CLIENT_ID       |
- | GITHUB_CLIENT_SECRET   |
+| Env file                   |
+|----------------------------|
+|  PORT                      |
+|  MONGO_PORT                |
+|  ROOT_PATH                 |
+|  JWT_SECRET                |
+|  REDIS_PORT                |
+|  GITHUB_CLIENT_ID          | 
+| GITHUB_CLIENT_SECRET       |
 
 
